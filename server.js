@@ -1,6 +1,7 @@
 const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto');
 const WebSocket=require('ws');
-const PORT=process.env.PORT||3000;
+const PORT=Number(process.env.PORT)||3000;
+const HOST=process.env.HOST||'0.0.0.0';
 const ROOT=path.join(__dirname,'public');
 const DB_FILE=path.join(__dirname,'data.json');
 const colors=['red','green','yellow','blue'],starts={red:0,green:13,yellow:26,blue:39};
@@ -26,6 +27,10 @@ function updateWallet(p,delta){p.coins+=delta;const u=db.users[p.username];u.coi
 const server=http.createServer((req,res)=>{
   let urlPath=(req.url||'/').split('?')[0]; let f=urlPath==='/'?'/index.html':urlPath;
   const full=path.normalize(path.join(ROOT,f));
+  if(urlPath==='/health'){
+    res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
+    return res.end(JSON.stringify({ok:true,service:'ludo-royale-v8'}));
+  }
   if(!full.startsWith(ROOT))return res.writeHead(403).end();
   fs.readFile(full,(e,d)=>{if(e)return res.writeHead(404).end('Not found');
     const ext=path.extname(full);const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml'};
@@ -33,7 +38,17 @@ const server=http.createServer((req,res)=>{
   })
 });
 const wss=new WebSocket.Server({server});
+const heartbeat=setInterval(()=>{
+  wss.clients.forEach(ws=>{
+    if(ws.isAlive===false)return ws.terminate();
+    ws.isAlive=true;
+    ws.ping();
+  });
+},30000);
 wss.on('connection',ws=>{
+  ws.isAlive=true;
+  ws.on('pong',()=>{ws.isAlive=true});
+
  ws.on('message',raw=>{let m;try{m=JSON.parse(raw)}catch{return}
   if(m.type==='register'||m.type==='login'){
     const username=String(m.username||'').trim().toLowerCase(),password=String(m.password||'');
@@ -61,4 +76,6 @@ wss.on('connection',ws=>{
  });
  ws.on('close',()=>{const r=ws.room;if(!r)return;r.players=r.players.filter(p=>p.ws!==ws);if(!r.players.length)rooms.delete(r.code);else{r.game=null;r.players.forEach((p,i)=>{p.color=colors[i];p.ready=false;p.pieces=[-1,-1,-1,-1]});broadcast(r,{type:'message',text:'🚪 انقطع لاعب، أُعيدت الغرفة إلى الانتظار'});broadcast(r,publicState(r))}})
 });
-server.listen(PORT,()=>console.log(`Ludo Royale V8 running on http://localhost:${PORT}`));
+process.on('SIGTERM',()=>{clearInterval(heartbeat);wss.close();server.close(()=>process.exit(0))});
+process.on('SIGINT',()=>{clearInterval(heartbeat);wss.close();server.close(()=>process.exit(0))});
+server.listen(PORT,HOST,()=>console.log(`Ludo Royale V8 running on ${HOST}:${PORT}`));
