@@ -1,0 +1,30 @@
+{
+  "users": {
+    "player1": {
+      "username": "player1",
+      "salt": "1f5363f2befdf4af559d548873103d29",
+      "hash": "0cd4d8ebba9eb9198f743dc3935d09e18c2f49dae5f913bad348acfd49906af6c599c122a5b35f1a3addd56fe580edbf2ad723c53b372527dc4db485cecd3bbc",
+      "coins": 110,
+      "lastDaily": null,
+      "inventory": [],
+      "stats": {
+        "games": 1,
+        "wins": 0,
+        "captures": 0
+      }
+    },
+    "rame": {
+      "username": "rame",
+      "salt": "46ecef6cbd5dd42f30ae91872c3815a3",
+      "hash": "88de3ef1550711bcfa88c580d18de56fba143ecbe218d138ad34dd2173ccd935510a84d152833d14b6ec8ddbde2069f5efe51eb0a22b1f7a9229fcb582234a42",
+      "coins": 150,
+      "lastDaily": null,
+      "inventory": [],
+      "stats": {
+        "games": 1,
+        "wins": 0,
+        "captures": 1
+      }
+    }
+  }
+}
