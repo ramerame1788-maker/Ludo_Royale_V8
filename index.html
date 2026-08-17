@@ -56,7 +56,7 @@ function roll(){sound('move');const d=document.getElementById('dice');d.classLis
 function claimBonus(){send({type:'daily'})}
 function chat(){const x=document.getElementById('msg');if(x.value.trim())send({type:'chat',text:x.value});x.value=''}
 function setAuth(mode){authMode=mode;document.getElementById('tabReg').classList.toggle('active',mode==='register');document.getElementById('tabLogin').classList.toggle('active',mode==='login');document.getElementById('authBtn').textContent=mode==='register'?'تسجيل حساب':'دخول';document.getElementById('authStatus').textContent=mode==='register'?'أنشئ حساباً لتحصل على 100 عملة بداية.':'أدخل بيانات حسابك للمتابعة.'}
-function authAction(){connect();setTimeout(()=>send({type:authMode,username:document.getElementById('username').value,password:document.getElementById('password').value}),100)}
+function authAction(){connect();setTimeout(()=>send({type:authMode,username:document.getElementById('username').value,password:document.getElementById('password').value}),500)}
 function logout(){if(ws?.readyState===1)ws.close();localStorage.removeItem('ludo_user');document.getElementById('authStatus').textContent='تم تسجيل الخروج.';document.getElementById('coins').textContent='0'}
 function leaderboard(){connect();setTimeout(()=>send({type:'leaderboard'}),100)}
 function buy(cost,item){send({type:'shop',cost,item})}
